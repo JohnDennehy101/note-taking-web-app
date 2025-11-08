@@ -27,14 +27,42 @@ type config struct {
 		maxIdleTime  time.Duration
 	}
 	cors struct {
-        trustedOrigins []string
-    }
+		trustedOrigins []string
+	}
+}
+
+type AppInterface interface {
+	GetRoutes() http.Handler
+	GetModels() data.Models
 }
 
 type application struct {
 	config config
 	logger *slog.Logger
 	models data.Models
+}
+
+func (app *application) GetRoutes() http.Handler {
+	return app.routes()
+}
+
+func (app *application) GetModels() data.Models {
+	return app.models
+}
+
+func NewApplication(db *sql.DB, logger *slog.Logger, env string, trustedOrigins []string) AppInterface {
+	return &application{
+		config: config{
+			env: env,
+			cors: struct {
+				trustedOrigins []string
+			}{
+				trustedOrigins: trustedOrigins,
+			},
+		},
+		logger: logger,
+		models: data.NewModels(db),
+	}
 }
 
 func main() {
@@ -49,11 +77,10 @@ func main() {
 	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "PostgreSQL max connection idle time")
 
 	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
-        cfg.cors.trustedOrigins = strings.Fields(val)
-        return nil
-    })
+		cfg.cors.trustedOrigins = strings.Fields(val)
+		return nil
+	})
 
-	
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -68,15 +95,11 @@ func main() {
 
 	logger.Info("database connection pool established")
 
-	app := &application{
-		config: cfg,
-		logger: logger,
-		models: data.NewModels(db),
-	}
+	app := NewApplication(db, logger, cfg.env, cfg.cors.trustedOrigins)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      app.routes(),
+		Handler:      app.GetRoutes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,

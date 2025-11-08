@@ -73,14 +73,15 @@ func (m NoteModel) Get(id int64) (*Note, error) {
 func (m NoteModel) Update(note *Note) error {
 	query := `
         UPDATE notes
-        SET title = $1, body = $2, tags = $3, version = version + 1
-        WHERE id = $4
+        SET title = $1, body = $2, tags = $3, archived = $4, version = version + 1
+        WHERE id = $5
         RETURNING version`
 
 	args := []any{
 		note.Title,
 		note.Body,
 		pq.Array(note.Tags),
+		note.Archived,
 		note.ID,
 	}
 
