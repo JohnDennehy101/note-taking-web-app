@@ -150,11 +150,10 @@ func TestNoteModel_Get(t *testing.T) {
 				if len(got.Tags) != len(note.Tags) {
 					t.Errorf("expected %d tags, got %d", len(note.Tags), len(got.Tags))
 				}
-			} else {
-				if err != data.ErrRecordNotFound {
-					t.Errorf("expected ErrRecordNotFound, got %v", err)
-				}
+			} else if err != data.ErrRecordNotFound {
+				t.Errorf("expected ErrRecordNotFound, got %v", err)
 			}
+
 		})
 	}
 }
@@ -288,7 +287,7 @@ func TestNoteModel_Delete(t *testing.T) {
 					Body:  "This will be deleted",
 					Tags:  []string{"delete"},
 				}
-				model.Insert(note)
+				_ = model.Insert(note)
 				return note.ID
 			},
 			wantErr: false,
@@ -328,10 +327,8 @@ func TestNoteModel_Delete(t *testing.T) {
 				if err != data.ErrRecordNotFound {
 					t.Errorf("expected ErrRecordNotFound after deletion, got %v", err)
 				}
-			} else {
-				if err != data.ErrRecordNotFound {
-					t.Errorf("expected ErrRecordNotFound, got %v", err)
-				}
+			} else if err != data.ErrRecordNotFound {
+				t.Errorf("expected ErrRecordNotFound, got %v", err)
 			}
 		})
 	}

@@ -29,10 +29,8 @@ func TestValidator_Valid(t *testing.T) {
 		expectedValid bool
 	}{
 		{
-			name: "no errors",
-			setup: func() *validator.Validator {
-				return validator.New()
-			},
+			name:          "no errors",
+			setup:         validator.New,
 			expectedValid: true,
 		},
 		{
@@ -76,10 +74,8 @@ func TestValidator_AddError(t *testing.T) {
 		expectedMsg    string
 	}{
 		{
-			name: "add first error",
-			setup: func() *validator.Validator {
-				return validator.New()
-			},
+			name:           "add first error",
+			setup:          validator.New,
 			key:            "field",
 			message:        "error message",
 			expectedErrors: 1,

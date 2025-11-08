@@ -10,7 +10,7 @@ import (
 func TestHealthcheckHandler(t *testing.T) {
 	app := newTestApplication(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", nil)
+	req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", http.NoBody)
 	rr := httptest.NewRecorder()
 
 	router := app.routes()

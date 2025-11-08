@@ -63,7 +63,7 @@ func TestEnableCORS(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(tt.method, "/v1/healthcheck", nil)
+			req := httptest.NewRequest(tt.method, "/v1/healthcheck", http.NoBody)
 			if tt.origin != "" {
 				req.Header.Set("Origin", tt.origin)
 			}
@@ -113,7 +113,7 @@ func TestRecoverPanic(t *testing.T) {
 	app := newTestApplication(t)
 
 	t.Run("normal request passes through", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", nil)
+		req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", http.NoBody)
 		rr := httptest.NewRecorder()
 
 		router := app.routes()
@@ -129,7 +129,7 @@ func TestRecoverPanic(t *testing.T) {
 	})
 
 	t.Run("panic recovery structure verified", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", nil)
+		req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", http.NoBody)
 		rr := httptest.NewRecorder()
 
 		router := app.routes()

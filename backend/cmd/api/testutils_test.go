@@ -2,13 +2,9 @@ package main_test
 
 import (
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
-	"sort"
-	"strings"
 	"testing"
 
 	api "github.com/johndennehy101/note-taking-web-app/backend/cmd/api"
@@ -40,47 +36,13 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func runMigrations(db *sql.DB) {
-	migrationsDir := "../../migrations"
-
-	entries, err := os.ReadDir(migrationsDir)
-	if err != nil {
-		panic(err)
-	}
-
-	var migrationFiles []string
-	for _, entry := range entries {
-		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".up.sql") {
-			migrationFiles = append(migrationFiles, entry.Name())
-		}
-	}
-
-	sort.Strings(migrationFiles)
-
-	for _, filename := range migrationFiles {
-		filepath := filepath.Join(migrationsDir, filename)
-		script, err := os.ReadFile(filepath)
-		if err != nil {
-			panic(fmt.Errorf("failed to read migration %s: %w", filename, err))
-		}
-
-		if _, err := db.Exec(string(script)); err != nil {
-			panic(fmt.Errorf("failed to execute migration %s: %w", filename, err))
-		}
-	}
-}
-
-func newTestApplication(t *testing.T) *testApp {
+func newTestApplication(_ *testing.T) *testApp {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelError,
 	}))
 	return &testApp{
 		AppInterface: api.NewApplication(testDB, logger, "testing", []string{"http://localhost:3000"}),
 	}
-}
-
-func newTestDB(t *testing.T) *sql.DB {
-	return testDB
 }
 
 func createTestNote(t *testing.T, app *testApp, title, body string, tags []string) *data.Note {

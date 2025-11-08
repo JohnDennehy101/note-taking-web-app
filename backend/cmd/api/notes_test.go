@@ -155,7 +155,7 @@ func TestShowNoteHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/v1/notes/"+tt.id, nil)
+			req := httptest.NewRequest(http.MethodGet, "/v1/notes/"+tt.id, http.NoBody)
 			rr := httptest.NewRecorder()
 
 			router := app.routes()
@@ -293,7 +293,7 @@ func TestDeleteNoteHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodDelete, "/v1/notes/"+fmt.Sprintf("%d", tt.id), nil)
+			req := httptest.NewRequest(http.MethodDelete, "/v1/notes/"+fmt.Sprintf("%d", tt.id), http.NoBody)
 			rr := httptest.NewRecorder()
 
 			router := app.routes()
@@ -492,7 +492,7 @@ func TestArchivedPropertyGet(t *testing.T) {
 				router.ServeHTTP(rr, req)
 			}
 
-			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v1/notes/%d", note.ID), nil)
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/v1/notes/%d", note.ID), http.NoBody)
 			rr := httptest.NewRecorder()
 			router := app.routes()
 			router.ServeHTTP(rr, req)
