@@ -6,33 +6,33 @@ import (
 )
 
 func (app *application) enableCORS(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        w.Header().Add("Vary", "Origin")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Vary", "Origin")
 
-        w.Header().Add("Vary", "Access-Control-Request-Method")
+		w.Header().Add("Vary", "Access-Control-Request-Method")
 
-        origin := r.Header.Get("Origin")
+		origin := r.Header.Get("Origin")
 
-        if origin != "" {
-            for i := range app.config.cors.trustedOrigins {
-                if origin == app.config.cors.trustedOrigins[i] {
-                    w.Header().Set("Access-Control-Allow-Origin", origin)
+		if origin != "" {
+			for i := range app.config.cors.trustedOrigins {
+				if origin == app.config.cors.trustedOrigins[i] {
+					w.Header().Set("Access-Control-Allow-Origin", origin)
 
-                    if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
-                        w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
-                        w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
+						w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
+						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
 
-                        w.WriteHeader(http.StatusOK)
-                        return
-                    }
+						w.WriteHeader(http.StatusOK)
+						return
+					}
 
-                    break
-                }
-            }
-        }
+					break
+				}
+			}
+		}
 
-        next.ServeHTTP(w, r)
-    })
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (app *application) recoverPanic(next http.Handler) http.Handler {
