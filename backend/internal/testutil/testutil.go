@@ -11,7 +11,6 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/lib/pq"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -51,6 +50,9 @@ func GetTestDB() (*sql.DB, error) {
 		}
 
 		err = runMigrations(testDB)
+		if err != nil {
+			return
+		}
 	})
 
 	return testDB, err
@@ -74,8 +76,8 @@ func runMigrations(db *sql.DB) error {
 	sort.Strings(migrationFiles)
 
 	for _, filename := range migrationFiles {
-		filepath := filepath.Join(migrationsDir, filename)
-		script, err := os.ReadFile(filepath)
+		filepathMigration := filepath.Join(migrationsDir, filename)
+		script, err := os.ReadFile(filepathMigration)
 		if err != nil {
 			return fmt.Errorf("failed to read migration %s: %w", filename, err)
 		}

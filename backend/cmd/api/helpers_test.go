@@ -54,7 +54,7 @@ func TestWriteJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			rr := httptest.NewRecorder()
 
-			req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", nil)
+			req := httptest.NewRequest(http.MethodGet, "/v1/healthcheck", http.NoBody)
 			router := app.routes()
 			router.ServeHTTP(rr, req)
 
@@ -199,7 +199,7 @@ func TestReadIDParam(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/v1/notes/"+tt.id, nil)
+			req := httptest.NewRequest(http.MethodGet, "/v1/notes/"+tt.id, http.NoBody)
 			rr := httptest.NewRecorder()
 
 			router := app.routes()

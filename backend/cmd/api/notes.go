@@ -30,7 +30,9 @@ func (app *application) createNoteHandler(w http.ResponseWriter, r *http.Request
 
 	v := validator.New()
 
-	if data.ValidateNote(v, note); !v.Valid() {
+	data.ValidateNote(v, note)
+
+	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -88,7 +90,9 @@ func (app *application) updateNoteHandler(w http.ResponseWriter, r *http.Request
 
 	v := validator.New()
 
-	if data.ValidateNote(v, note); !v.Valid() {
+	data.ValidateNote(v, note)
+
+	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}

@@ -30,7 +30,7 @@ func TestNotFoundResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
+			req := httptest.NewRequest(http.MethodGet, tt.path, http.NoBody)
 			rr := httptest.NewRecorder()
 
 			router := app.routes()
@@ -86,7 +86,7 @@ func TestMethodNotAllowedResponse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(tt.method, tt.path, nil)
+			req := httptest.NewRequest(tt.method, tt.path, http.NoBody)
 			rr := httptest.NewRecorder()
 
 			router := app.routes()
@@ -214,7 +214,7 @@ func TestFailedValidationResponse(t *testing.T) {
 				t.Fatalf("failed to decode response: %v", err)
 			}
 
-			if response.Error == nil || len(response.Error) == 0 {
+			if len(response.Error) == 0 {
 				t.Error("expected validation errors to be present")
 			}
 		})

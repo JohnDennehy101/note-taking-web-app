@@ -85,13 +85,11 @@ func main() {
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	db, err := openDB(cfg)
+	db, err := openDB(&cfg)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
-
-	defer db.Close()
 
 	logger.Info("database connection pool established")
 
@@ -109,11 +107,16 @@ func main() {
 	logger.Info("starting server", "addr", srv.Addr, "env", cfg.env)
 
 	err = srv.ListenAndServe()
-	logger.Error(err.Error())
-	os.Exit(1)
+	if err != nil {
+		logger.Error(err.Error())
+		db.Close()
+		os.Exit(1)
+	}
+
+	db.Close()
 }
 
-func openDB(cfg config) (*sql.DB, error) {
+func openDB(cfg *config) (*sql.DB, error) {
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
 		return nil, err

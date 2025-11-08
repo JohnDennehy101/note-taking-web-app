@@ -5,6 +5,14 @@ linters:
   enable:
     - gosec
     - misspell
+    - errcheck
+    - staticcheck
+    - unused
+    - ineffassign
+    - govet
+    - revive
+    - goconst
+    - gocritic
   settings:
     gocritic:
       enabled-tags:
