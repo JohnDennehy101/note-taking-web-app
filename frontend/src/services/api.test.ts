@@ -6,7 +6,29 @@ import {
   type UpdateNoteInput,
 } from "./api"
 
-globalThis.fetch = vi.fn()
+const mockFetch = vi.fn() as unknown as typeof fetch
+globalThis.fetch = mockFetch
+
+function createMockResponse(data: unknown, ok = true, status = 200): Response {
+  return {
+    ok,
+    status,
+    statusText: ok ? "OK" : "Error",
+    headers: new Headers(),
+    body: null,
+    bodyUsed: false,
+    redirected: false,
+    type: "default" as ResponseType,
+    url: "",
+    clone: vi.fn(),
+    arrayBuffer: vi.fn(),
+    blob: vi.fn(),
+    bytes: vi.fn(),
+    formData: vi.fn(),
+    text: vi.fn(),
+    json: () => Promise.resolve(data),
+  } as Response
+}
 
 describe("api", () => {
   beforeEach(() => {
@@ -26,10 +48,9 @@ describe("api", () => {
         version: 1,
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ note: mockNote }),
-      })
+      vi.mocked(mockFetch).mockResolvedValueOnce(
+        createMockResponse({ note: mockNote }),
+      )
 
       const input: CreateNoteInput = {
         title: "Test Note",
@@ -40,24 +61,22 @@ describe("api", () => {
       const result = await api.createNote(input)
 
       expect(result).toEqual(mockNote)
-      expect(fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         "http://localhost:4000/v1/notes",
         expect.objectContaining({
           method: "POST",
           body: JSON.stringify(input),
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-          }),
+          }) as HeadersInit,
         }),
       )
     })
 
     it("should throw error on failure", async () => {
-      ;(fetch as any).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({ error: "Bad request" }),
-      })
+      vi.mocked(mockFetch).mockResolvedValueOnce(
+        createMockResponse({ error: "Bad request" }, false, 400),
+      )
 
       const input: CreateNoteInput = {
         title: "Test",
@@ -81,20 +100,19 @@ describe("api", () => {
         version: 1,
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ note: mockNote }),
-      })
+      vi.mocked(mockFetch).mockResolvedValueOnce(
+        createMockResponse({ note: mockNote }),
+      )
 
       const result = await api.getNote(1)
 
       expect(result).toEqual(mockNote)
-      expect(fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         "http://localhost:4000/v1/notes/1",
         expect.objectContaining({
           headers: expect.objectContaining({
             "Content-Type": "application/json",
-          }),
+          }) as HeadersInit,
         }),
       )
     })
@@ -112,10 +130,9 @@ describe("api", () => {
         version: 2,
       }
 
-      ;(fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ note: mockNote }),
-      })
+      vi.mocked(mockFetch).mockResolvedValueOnce(
+        createMockResponse({ note: mockNote }),
+      )
 
       const input: UpdateNoteInput = {
         title: "Updated Note",
@@ -127,7 +144,7 @@ describe("api", () => {
       const result = await api.updateNote(1, input)
 
       expect(result).toEqual(mockNote)
-      expect(fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         "http://localhost:4000/v1/notes/1",
         expect.objectContaining({
           method: "PUT",
@@ -139,14 +156,11 @@ describe("api", () => {
 
   describe("deleteNote", () => {
     it("should delete a note successfully", async () => {
-      ;(fetch as any).mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({}),
-      })
+      vi.mocked(mockFetch).mockResolvedValueOnce(createMockResponse({}))
 
       await api.deleteNote(1)
 
-      expect(fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         "http://localhost:4000/v1/notes/1",
         expect.objectContaining({
           method: "DELETE",
@@ -155,11 +169,9 @@ describe("api", () => {
     })
 
     it("should throw error on failure", async () => {
-      ;(fetch as any).mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        json: async () => ({ error: "Not found" }),
-      })
+      vi.mocked(mockFetch).mockResolvedValueOnce(
+        createMockResponse({ error: "Not found" }, false, 404),
+      )
 
       await expect(api.deleteNote(999)).rejects.toThrow("Not found")
     })
