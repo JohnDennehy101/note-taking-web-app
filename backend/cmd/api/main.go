@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/johndennehy101/note-taking-web-app/backend/internal/data"
@@ -25,6 +26,9 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  time.Duration
 	}
+	cors struct {
+        trustedOrigins []string
+    }
 }
 
 type application struct {
@@ -43,6 +47,13 @@ func main() {
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "PostgreSQL max connection idle time")
+
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+        cfg.cors.trustedOrigins = strings.Fields(val)
+        return nil
+    })
+
+	
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
